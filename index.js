@@ -47,38 +47,31 @@ connection.connect(function(err) {
 }
 
 function updatedRole()  {
-    //  Employee Role Array
-    // const roleArray = connection.query(`SELECT * FROM roles;`,
-    // function (err, res) {
-    //     if (err, res)
-    //     if (res.length > 0) {
-    //       for (let i = 0; i < res.length)
-    //       RowDataPacket {
-    //         id: 6,
-    //         first_name: 'Jos',
-    //         last_name: 'JOJO',
-    //         role_id: 0,
-    //         manager_id: 0
-    //       },}
-    //     console.log(res)
-    //     // start();
-    //  })
-    inquirer.prompt([
+    connection.query(`SELECT first_name, last_name, id FROM employee`,
+    function (err, res) {
+    if (err) throw err
+    const employeeArray = []
+
+    if (res.length > 0) {
+    for (let i = 0; i < res.length; i++)  {
+      const employeeObject = {
+        first: res[i].first_name,
+        last: res[i].last_name,
+        value: res[i].id
+      };
+      employeeArray.push(employeeObject);
+    }
+  }
+}
+)}inquirer.prompt([
         {
-          name: "id",
-          type: "number",
-          message: "Please share the index number of the employee?",
+          name: "employeeUpdate",
+          type: "list",
+          message: "Please select the employee to update.",
         },
     ]).then((res) => {            
-      connection.query(`SELECT * FROM employee;`,
-      function (err, res) {
-          if (err, res)
-          // console.table(res)
-          console.log(res)
-          // start();
-       })
-        })
-    }
+     console.log(res)
+    })
 
 function viewAll(){
     connection.query(
@@ -95,7 +88,6 @@ function viewAll(){
          })  
 }
 function newEmployee()  {
-    
   inquirer.prompt([
     {
       name: "first",
