@@ -3,13 +3,10 @@ const mysql = require("mysql");
 
 const connection = mysql.createConnection({
     host: "localhost",
-  
     // Your port; if not 3306
     port: 3306,
-  
     // Your username
     user: "root",
-  
     // Your password
     password: "1087",
     database: "mgmtsystem_db"
@@ -28,23 +25,115 @@ connection.connect(function(err) {
       name: "selection",
       type: "list",
       message: "What would you like to do?",
-      choices: ["View All", "Add New", "Update Roles"]
+      choices: ["View All", "Add New Employee", "Add New Department", "Add New Role", "Update Roles"]
     })
     .then(({selection}) => {      // used destructuring to access key
       // based on their answer, either call the bid or the post functions
       if (selection === "View All") {
-        connection.query(
-           `SELECT employee.first_name, employee.last_name, role.title, role.salary
-           FROM employee
-           INNER JOIN role
-               ON employee.role_id = role.id
-           INNER JOIN department
-               ON role.department_id = department.id;`,
-            function (err, res) {
-                if (err, res)
-                console.table(res)
-                connection.end()
-            })
+        viewAll();
+      } else if (selection === "Add New Employee") {
+        newEmployee(); 
+      }
+      else if (selection === "Add New Department") {
+        newDepartment();
+      }
+      else if (selection === "Add New Role") {
+        newRole();
       }
   })
 }
+function viewAll(){
+    connection.query(
+        `SELECT employee.first_name, employee.last_name, role.title, role.salary
+        FROM employee
+        INNER JOIN role
+            ON employee.role_id = role.id
+        INNER JOIN department
+            ON role.department_id = department.id;`,
+         function (err, res) {
+             if (err, res)
+             console.table(res)
+             start();
+         })  
+}
+function newEmployee()  {
+    inquirer.prompt([
+    {
+      name: "first",
+      type: "input",
+      message: "Please share the first name of new employee?"
+    },
+    {
+        name: "last",
+        type: "input",
+        message: "Please share the last name of new employee?"
+    },
+    {
+        name: "role",
+        type: "list",
+        choices: ["1", "2", "3"]
+    },
+    {
+        name: "managerID",
+        type: "list",
+        choices: ["0", "1", "2", "3", "4"]
+    },
+    ]).then(({first, last, role, managerID}) => {
+        console.log(first, last, role, managerID)
+        connection.query("INSERT INTO employee SET ?", 
+        {   first_name: first,
+            last_name:  last,
+            role_id: role,
+            manager_id: managerID
+        },
+        function (err, res) {
+            if (err, res)
+            console.table(res)
+            start();
+         })
+    })}
+    // INSERT INTO top_5000 (position, artist, song, year)
+    // VALUES (1,"Bing Crosby","White Christmas",1942,39.903,23.929,5.7,2.185,0.54), (2,"Bill Haley & his Comets","Rock Around the Clock",1955,36.503,19.961,7.458,5.663,0.76), (3,"Celine Dion","My Heart Will Go On",1998,35.405,12.636,8.944,23.701,3.61)
+
+
+function newDepartment()  {
+        inquirer.prompt(
+        {
+          name: "name",
+          type: "input",
+          message: "Please share the name of the new department?"
+        }).then(({name}) => {
+            console.log(name)
+            connection.query("INSERT INTO department SET ?", 
+            {   name: name
+            },
+            function (err, res) {
+                if (err, res)
+                console.table(res)
+                start();
+             })
+        })
+
+
+
+function newRole()  {
+            inquirer.prompt([
+            {
+            name: "title",
+            type: "input",
+            message: "Please share the name of the new role."
+            },
+            {
+            name: "salary",
+            type: "number",
+            message: "Please share the starting salary of the new role."
+            },
+            {
+            name: "departmentID",
+            type: "number",
+            message: "Please share the department ID number for the new role"
+            }
+        ]).then(({title, salary, departmentID}) => {
+                console.log(title, salary, departmentID)
+                start();
+            })}
