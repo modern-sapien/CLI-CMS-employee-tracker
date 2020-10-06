@@ -31,7 +31,7 @@ Create an employee database with three tables
 
 ## CLI MVP functionality
 
-    *   Add departments, roles, employees
+        DONE departments, roles, employees
 
         DONE   View departments, roles, employees 
 
@@ -45,4 +45,4 @@ Create an employee database with three tables
 
     *   Delete department, roles and employees
 
-    *   View the total utilized budget of a deparment -- ie combined salaries of all employees in that department 
+    *   View the total utilized budget of a department -- ie combined salaries of all employees in that department 

@@ -40,8 +40,46 @@ connection.connect(function(err) {
       else if (selection === "Add New Role") {
         newRole();
       }
+      else if (selection === "Update Roles") {
+        updatedRole();
+      }
   })
 }
+
+function updatedRole()  {
+    //  Employee Role Array
+    // const roleArray = connection.query(`SELECT * FROM roles;`,
+    // function (err, res) {
+    //     if (err, res)
+    //     if (res.length > 0) {
+    //       for (let i = 0; i < res.length)
+    //       RowDataPacket {
+    //         id: 6,
+    //         first_name: 'Jos',
+    //         last_name: 'JOJO',
+    //         role_id: 0,
+    //         manager_id: 0
+    //       },}
+    //     console.log(res)
+    //     // start();
+    //  })
+    inquirer.prompt([
+        {
+          name: "id",
+          type: "number",
+          message: "Please share the index number of the employee?",
+        },
+    ]).then((res) => {            
+      connection.query(`SELECT * FROM employee;`,
+      function (err, res) {
+          if (err, res)
+          // console.table(res)
+          console.log(res)
+          // start();
+       })
+        })
+    }
+
 function viewAll(){
     connection.query(
         `SELECT employee.first_name, employee.last_name, role.title, role.salary
@@ -57,7 +95,8 @@ function viewAll(){
          })  
 }
 function newEmployee()  {
-    inquirer.prompt([
+    
+  inquirer.prompt([
     {
       name: "first",
       type: "input",
@@ -81,7 +120,8 @@ function newEmployee()  {
     ]).then(({first, last, role, managerID}) => {
         console.log(first, last, role, managerID)
         connection.query("INSERT INTO employee SET ?", 
-        {   first_name: first,
+        {   
+            first_name: first,
             last_name:  last,
             role_id: role,
             manager_id: managerID
@@ -92,9 +132,6 @@ function newEmployee()  {
             start();
          })
     })}
-    // INSERT INTO top_5000 (position, artist, song, year)
-    // VALUES (1,"Bing Crosby","White Christmas",1942,39.903,23.929,5.7,2.185,0.54), (2,"Bill Haley & his Comets","Rock Around the Clock",1955,36.503,19.961,7.458,5.663,0.76), (3,"Celine Dion","My Heart Will Go On",1998,35.405,12.636,8.944,23.701,3.61)
-
 
 function newDepartment()  {
         inquirer.prompt(
@@ -113,8 +150,7 @@ function newDepartment()  {
                 start();
              })
         })
-
-
+    }
 
 function newRole()  {
             inquirer.prompt([
@@ -134,6 +170,15 @@ function newRole()  {
             message: "Please share the department ID number for the new role"
             }
         ]).then(({title, salary, departmentID}) => {
-                console.log(title, salary, departmentID)
-                start();
-            })}
+        connection.query("INSERT INTO role SET ?", 
+                {   title: title,
+                    salary: salary,
+                    department_id: departmentID
+                },
+                function (err, res) {
+                    if (err, res)
+                    console.table(res)
+                    start();
+                 })
+            })
+        }

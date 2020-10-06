@@ -29,7 +29,6 @@ SELECT * FROM role;
 -- view employees
 SELECT * FROM employee;
 
-
 -- update employee roles
 UPDATE employee
 SET 
