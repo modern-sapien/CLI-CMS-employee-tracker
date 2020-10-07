@@ -33,18 +33,31 @@ const query = connection.query(`SELECT role.title FROM role;`, function (err,res
       console.log(query.sql)
     })
   };
-
 const roleArray = [];
+
+updateDepartments();
+function updateDepartments()  {
+const query = connection.query(`SELECT department.name FROM department;`, function (err,res) {
+      if (err,res)  
+        if (res.length > 0) {
+          for (let i = 0; i < res.length; i++)  {
+            const departmentString = res[i].name
+            departmentArray.push(departmentString);
+      }
+      }
+      console.log(query.sql)
+    })
+  };
+const departmentArray = [];
 
 // EMPLOYEE ARRAY
 updateEmployees()
 
 function updateEmployees()  {
-connection.query(`SELECT e.id, e.first_name, e.last_name, r.title, r.salary, d.name, CONCAT(em.first_name, " ",em.last_name) AS "manager"
-FROM employee e
-LEFT JOIN employee em ON em.id = e.id
-INNER JOIN role r ON e.role_id = r.id
-INNER JOIN department d ON r.department_id = d.id;`, function (err,res) {
+connection.query(`SELECT employee.first_name, employee.last_name, employee.role_id, role.title
+  FROM employee
+  INNER JOIN role
+  ON employee.role_id = role.id;`, function (err,res) {
       if (err,res)  
         if (res.length > 0) {
           for (let i = 0; i < res.length; i++)  {
@@ -52,7 +65,7 @@ INNER JOIN department d ON r.department_id = d.id;`, function (err,res) {
             employeeArray.push(employeeString); 
           };
         }
-      })
+    })
     }
 
 const employeeArray = [];
@@ -76,9 +89,6 @@ const employeeArray = [];
       }
       else if (selection === "Add New Role") {
         newRole();
-      }
-      else if (selection === "View Departments") {
-        viewDepartments();
       }
       else if (selection === "View Departments") {
         viewDepartments();
@@ -143,12 +153,11 @@ function updateRole()  {
 
 function viewAll(){
     connection.query(
-        `SELECT employee.first_name, employee.last_name, role.title, role.salary
+        `SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.name, CONCAT(manager.first_name, " ",manager.last_name) AS "manager"
         FROM employee
-        INNER JOIN role
-            ON employee.role_id = role.id
-        INNER JOIN department
-            ON role.department_id = department.id;`,
+        LEFT JOIN employee AS manager ON employee.manager_id = manager.id
+        INNER JOIN role ON employee.role_id = role.id
+        INNER JOIN department ON role.department_id = department.id;`,
          function (err, res) {
              if (err, res)
              console.table(res)
@@ -210,7 +219,7 @@ function newEmployee()  {
     },
     ]).then(({first, last, role, managerID}) => {
         console.log(first, last, role, managerID)
-        const rolePosition = roleArray.indexOf(roleUpdate) + 1
+        const rolePosition = roleArray.indexOf(role) + 1
         console.log(rolePosition)
         // INSERT INTO employee VALUES ()
         connection.query("INSERT INTO employee SET ?", 
@@ -259,16 +268,12 @@ function newRole()  {
             type: "number",
             message: "Please share the starting salary of the new role."
             },
-            {
-            name: "departmentID",
-            type: "number",
-            message: "Please share the department ID number for the new role"
-            }
-        ]).then(({title, salary, departmentID}) => {
-        connection.query("INSERT INTO role SET ?", 
+        ]).then(({title, salary}) => {
+          console.log(title, salary)
+          connection.query("INSERT INTO role SET ?", 
                 {   title: title,
                     salary: salary,
-                    department_id: departmentID
+                    department_id: departmentArray.length+1
                 },
                 function (err, res) {
                     if (err, res)

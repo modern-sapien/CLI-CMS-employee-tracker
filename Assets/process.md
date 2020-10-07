@@ -41,7 +41,7 @@ Create an employee database with three tables
 
     *   Update employee managers
 
-    *   View employees by manager
+    DONE   View employees by manager
 
     *   Delete department, roles and employees
 
