@@ -21,9 +21,8 @@ connection.connect(function(err) {
 
 // // ROLE ARRAY
 updateRoles();
-
 function updateRoles()  {
-connection.query(`SELECT role.title FROM role;`, function (err,res) {
+const query = connection.query(`SELECT role.title FROM role;`, function (err,res) {
       if (err,res)  
         if (res.length > 0) {
           for (let i = 0; i < res.length; i++)  {
@@ -31,6 +30,7 @@ connection.query(`SELECT role.title FROM role;`, function (err,res) {
             roleArray.push(roleString);
       }
       }
+      console.log(query.sql)
     })
   };
 
@@ -40,29 +40,29 @@ const roleArray = [];
 updateEmployees()
 
 function updateEmployees()  {
-connection.query(`SELECT employee.first_name, employee.last_name, employee.role_id, role.title
-  FROM employee
-  INNER JOIN role
-  ON employee.role_id = role.id;`, function (err,res) {
+connection.query(`SELECT e.id, e.first_name, e.last_name, r.title, r.salary, d.name, CONCAT(em.first_name, " ",em.last_name) AS "manager"
+FROM employee e
+LEFT JOIN employee em ON em.id = e.id
+INNER JOIN role r ON e.role_id = r.id
+INNER JOIN department d ON r.department_id = d.id;`, function (err,res) {
       if (err,res)  
         if (res.length > 0) {
           for (let i = 0; i < res.length; i++)  {
             const employeeString = res[i].first_name + " " + res[i].last_name           
             employeeArray.push(employeeString); 
           };
-      }
+        }
       })
     }
 
 const employeeArray = [];
-
   function start()  {
     inquirer
     .prompt({
       name: "selection",
       type: "list",
       message: "What would you like to do?",
-      choices: ["View All", "Add New Employee", "Add New Department", "Add New Role", "Update Roles"]
+      choices: ["View All", "Add New Employee", "Add New Department", "Add New Role", "Update Roles", "View Departments", "View Roles", "View Employees", "Escape"]
     })
     .then(({selection}) => {      // used destructuring to access key
       // based on their answer, either call the bid or the post functions
@@ -77,8 +77,23 @@ const employeeArray = [];
       else if (selection === "Add New Role") {
         newRole();
       }
+      else if (selection === "View Departments") {
+        viewDepartments();
+      }
+      else if (selection === "View Departments") {
+        viewDepartments();
+      }
+      else if (selection === "View Roles") {
+        viewRoles();
+      }
+      else if (selection === "View Employees") {
+        viewEmployees();
+      }
       else if (selection === "Update Roles") {
         updateRole();
+      }
+      else if (selection === "Escape") {
+        connection.end()
       }
   })
 }
@@ -105,7 +120,7 @@ function updateRole()  {
       firstName = strArray[0];
       lastName = strArray[1];
       console.log(firstName, lastName);
-      const rolePosition = roleArray.indexOf(res.roleUpdate) + 1
+      const rolePosition = roleArray.indexOf(res.roleUpdate) + 1;
       console.log(rolePosition)
       connection.query(`UPDATE employee SET ? WHERE ? AND ?`,
       [{
@@ -125,6 +140,7 @@ function updateRole()  {
     })
   }
 
+
 function viewAll(){
     connection.query(
         `SELECT employee.first_name, employee.last_name, role.title, role.salary
@@ -139,6 +155,37 @@ function viewAll(){
              start();
          })  
 }
+
+function viewDepartments(){
+  connection.query(
+      `SELECT * FROM department;`,
+       function (err, res) {
+           if (err, res)
+           console.table(res)
+           start();
+       })  
+};
+
+function viewRoles(){
+  connection.query(
+      `SELECT * FROM role;`,
+       function (err, res) {
+           if (err, res)
+           console.table(res)
+           start();
+       })  
+};
+
+function viewEmployees(){
+  connection.query(
+      `SELECT * FROM employee;`,
+       function (err, res) {
+           if (err, res)
+           console.table(res)
+           start();
+       })
+};
+
 function newEmployee()  {
   inquirer.prompt([
     {
@@ -154,20 +201,23 @@ function newEmployee()  {
     {
         name: "role",
         type: "list",
-        choices: ["1", "2", "3"]
+        choices: roleArray
     },
     {
         name: "managerID",
         type: "list",
-        choices: ["0", "1", "2", "3", "4"]
+        choices: [0, 1, 2, 3, 4]
     },
     ]).then(({first, last, role, managerID}) => {
         console.log(first, last, role, managerID)
+        const rolePosition = roleArray.indexOf(roleUpdate) + 1
+        console.log(rolePosition)
+        // INSERT INTO employee VALUES ()
         connection.query("INSERT INTO employee SET ?", 
         {   
             first_name: first,
             last_name:  last,
-            role_id: role,
+            role_id: rolePosition,
             manager_id: managerID
         },
         function (err, res) {
@@ -175,7 +225,8 @@ function newEmployee()  {
             console.table(res)
             start();
          })
-    })}
+    })
+  }
 
 function newDepartment()  {
         inquirer.prompt(
